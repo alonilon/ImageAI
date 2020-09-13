@@ -185,7 +185,8 @@ class ObjectDetection:
 
         if (self.__modelLoaded == False):
             if (self.__modelType == ""):
-                raise ValueError("You must set a valid model type before loading the model.")
+                raise ValueError(
+                    "You must set a valid model type before loading the model.")
             elif (self.__modelType == "retinanet"):
                 model = resnet50_retinanet(num_classes=80)
                 model.load_weights(self.modelPath)
@@ -198,7 +199,8 @@ class ObjectDetection:
 
                 hsv_tuples = [(x / len(self.numbers_to_names), 1., 1.)
                               for x in range(len(self.numbers_to_names))]
-                self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
+                self.colors = list(
+                    map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
                 self.colors = list(
                     map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)),
                         self.colors))
@@ -209,7 +211,8 @@ class ObjectDetection:
                 self.__yolo_input_image_shape = K.placeholder(shape=(2,))
                 self.__yolo_boxes, self.__yolo_scores, self.__yolo_classes = yolo_eval(model.output,
                                                                                        self.__yolo_anchors,
-                                                                                       len(self.numbers_to_names),
+                                                                                       len(
+                                                                                           self.numbers_to_names),
                                                                                        self.__yolo_input_image_shape,
                                                                                        score_threshold=self.__yolo_score,
                                                                                        iou_threshold=self.__yolo_iou)
@@ -224,7 +227,8 @@ class ObjectDetection:
 
                 hsv_tuples = [(x / len(self.numbers_to_names), 1., 1.)
                               for x in range(len(self.numbers_to_names))]
-                self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
+                self.colors = list(
+                    map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
                 self.colors = list(
                     map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)),
                         self.colors))
@@ -235,7 +239,8 @@ class ObjectDetection:
                 self.__yolo_input_image_shape = K.placeholder(shape=(2,))
                 self.__yolo_boxes, self.__yolo_scores, self.__yolo_classes = yolo_eval(model.output,
                                                                                        self.__tiny_yolo_anchors,
-                                                                                       len(self.numbers_to_names),
+                                                                                       len(
+                                                                                           self.numbers_to_names),
                                                                                        self.__yolo_input_image_shape,
                                                                                        score_threshold=self.__yolo_score,
                                                                                        iou_threshold=self.__yolo_iou)
@@ -315,7 +320,8 @@ class ObjectDetection:
         """
 
         if (self.__modelLoaded == False):
-            raise ValueError("You must call the loadModel() function before making object detection.")
+            raise ValueError(
+                "You must call the loadModel() function before making object detection.")
         elif (self.__modelLoaded == True):
             try:
                 if (self.__modelType == "retinanet"):
@@ -330,24 +336,30 @@ class ObjectDetection:
                         image = read_image_stream(input_image)
 
                     detected_copy = image.copy()
-                    detected_copy = cv2.cvtColor(detected_copy, cv2.COLOR_BGR2RGB)
+                    detected_copy = cv2.cvtColor(
+                        detected_copy, cv2.COLOR_BGR2RGB)
 
                     detected_copy2 = image.copy()
-                    detected_copy2 = cv2.cvtColor(detected_copy2, cv2.COLOR_BGR2RGB)
+                    detected_copy2 = cv2.cvtColor(
+                        detected_copy2, cv2.COLOR_BGR2RGB)
 
                     image = preprocess_image(image)
-                    image, scale = resize_image(image, min_side=self.__input_image_min, max_side=self.__input_image_max)
+                    image, scale = resize_image(
+                        image, min_side=self.__input_image_min, max_side=self.__input_image_max)
 
                     model = self.__model_collection[0]
 
                     if thread_safe == True:
                         with self.sess.graph.as_default():
-                            _, _, detections = model.predict_on_batch(np.expand_dims(image, axis=0))
+                            _, _, detections = model.predict_on_batch(
+                                np.expand_dims(image, axis=0))
                     else:
-                        _, _, detections = model.predict_on_batch(np.expand_dims(image, axis=0))
+                        _, _, detections = model.predict_on_batch(
+                            np.expand_dims(image, axis=0))
 
                     predicted_numbers = np.argmax(detections[0, :, 4:], axis=1)
-                    scores = detections[0, np.arange(detections.shape[1]), 4 + predicted_numbers]
+                    scores = detections[0, np.arange(
+                        detections.shape[1]), 4 + predicted_numbers]
 
                     detections[0, :, :4] /= scale
 
@@ -367,37 +379,47 @@ class ObjectDetection:
 
                         color = label_color(label)
 
-                        detection_details = detections[0, index, :4].astype(int)
+                        detection_details = detections[0, index, :4].astype(
+                            int)
                         draw_box(detected_copy, detection_details, color=color)
 
                         if (display_object_name == True and display_percentage_probability == True):
-                            caption = "{} {:.3f}".format(self.numbers_to_names[label], (score * 100))
-                            draw_caption(detected_copy, detection_details, caption)
+                            caption = "{} {:.3f}".format(
+                                self.numbers_to_names[label], (score * 100))
+                            draw_caption(
+                                detected_copy, detection_details, caption)
                         elif (display_object_name == True):
-                            caption = "{} ".format(self.numbers_to_names[label])
-                            draw_caption(detected_copy, detection_details, caption)
+                            caption = "{} ".format(
+                                self.numbers_to_names[label])
+                            draw_caption(
+                                detected_copy, detection_details, caption)
                         elif (display_percentage_probability == True):
                             caption = " {:.3f}".format((score * 100))
-                            draw_caption(detected_copy, detection_details, caption)
+                            draw_caption(
+                                detected_copy, detection_details, caption)
 
                         each_object_details = {}
                         each_object_details["name"] = self.numbers_to_names[label]
                         each_object_details["percentage_probability"] = score * 100
-                        each_object_details["box_points"] = detection_details.tolist()
+                        each_object_details["box_points"] = detection_details.tolist(
+                        )
 
                         output_objects_array.append(each_object_details)
 
                         if (extract_detected_objects == True):
                             splitted_copy = detected_copy2.copy()[detection_details[1]:detection_details[3],
-                                            detection_details[0]:detection_details[2]]
+                                                                  detection_details[0]:detection_details[2]]
                             if (output_type == "file"):
                                 splitted_image_path = os.path.join(objects_dir,
                                                                    self.numbers_to_names[label] + "-" + str(
                                                                        counting) + ".jpg")
-                                pltimage.imsave(splitted_image_path, splitted_copy)
-                                detected_objects_image_array.append(splitted_image_path)
+                                pltimage.imsave(
+                                    splitted_image_path, splitted_copy)
+                                detected_objects_image_array.append(
+                                    splitted_image_path)
                             elif (output_type == "array"):
-                                detected_objects_image_array.append(splitted_copy)
+                                detected_objects_image_array.append(
+                                    splitted_copy)
 
                     if (output_type == "file"):
                         pltimage.imsave(output_image_path, detected_copy)
@@ -429,10 +451,12 @@ class ObjectDetection:
                         input_image = read_image_stream(input_image)
 
                     detected_copy = input_image
-                    detected_copy = cv2.cvtColor(detected_copy, cv2.COLOR_BGR2RGB)
+                    detected_copy = cv2.cvtColor(
+                        detected_copy, cv2.COLOR_BGR2RGB)
 
                     detected_copy2 = input_image
-                    detected_copy2 = cv2.cvtColor(detected_copy2, cv2.COLOR_BGR2RGB)
+                    detected_copy2 = cv2.cvtColor(
+                        detected_copy2, cv2.COLOR_BGR2RGB)
 
                     new_image_size = (self.__yolo_model_image_size[0] - (self.__yolo_model_image_size[0] % 32),
                                       self.__yolo_model_image_size[1] - (self.__yolo_model_image_size[1] % 32))
@@ -447,7 +471,8 @@ class ObjectDetection:
                     if thread_safe == True:
                         with self.sess.graph.as_default():
                             out_boxes, out_scores, out_classes = self.sess.run(
-                                [self.__yolo_boxes, self.__yolo_scores, self.__yolo_classes],
+                                [self.__yolo_boxes, self.__yolo_scores,
+                                    self.__yolo_classes],
                                 feed_dict={
                                     model.input: image_data,
                                     self.__yolo_input_image_shape: [image.size[1], image.size[0]],
@@ -455,7 +480,8 @@ class ObjectDetection:
                                 })
                     else:
                         out_boxes, out_scores, out_classes = self.sess.run(
-                            [self.__yolo_boxes, self.__yolo_scores, self.__yolo_classes],
+                            [self.__yolo_boxes, self.__yolo_scores,
+                                self.__yolo_classes],
                             feed_dict={
                                 model.input: image_data,
                                 self.__yolo_input_image_shape: [image.size[1], image.size[0]],
@@ -485,8 +511,10 @@ class ObjectDetection:
                         top, left, bottom, right = box
                         top = max(0, np.floor(top + 0.5).astype('int32'))
                         left = max(0, np.floor(left + 0.5).astype('int32'))
-                        bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
-                        right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
+                        bottom = min(image.size[1], np.floor(
+                            bottom + 0.5).astype('int32'))
+                        right = min(image.size[0], np.floor(
+                            right + 0.5).astype('int32'))
 
                         try:
                             color = label_color(b)
@@ -497,11 +525,14 @@ class ObjectDetection:
                         draw_box(detected_copy, detection_details, color=color)
 
                         if (display_object_name == True and display_percentage_probability == True):
-                            draw_caption(detected_copy, detection_details, label)
+                            draw_caption(
+                                detected_copy, detection_details, label)
                         elif (display_object_name == True):
-                            draw_caption(detected_copy, detection_details, predicted_class)
+                            draw_caption(
+                                detected_copy, detection_details, predicted_class)
                         elif (display_percentage_probability == True):
-                            draw_caption(detected_copy, detection_details, str(score * 100))
+                            draw_caption(
+                                detected_copy, detection_details, str(score * 100))
 
                         each_object_details = {}
                         each_object_details["name"] = predicted_class
@@ -512,15 +543,18 @@ class ObjectDetection:
 
                         if (extract_detected_objects == True):
                             splitted_copy = detected_copy2.copy()[detection_details[1]:detection_details[3],
-                                            detection_details[0]:detection_details[2]]
+                                                                  detection_details[0]:detection_details[2]]
                             if (output_type == "file"):
                                 splitted_image_path = os.path.join(objects_dir,
                                                                    predicted_class + "-" + str(
                                                                        counting) + ".jpg")
-                                pltimage.imsave(splitted_image_path, splitted_copy)
-                                detected_objects_image_array.append(splitted_image_path)
+                                pltimage.imsave(
+                                    splitted_image_path, splitted_copy)
+                                detected_objects_image_array.append(
+                                    splitted_image_path)
                             elif (output_type == "array"):
-                                detected_objects_image_array.append(splitted_copy)
+                                detected_objects_image_array.append(
+                                    splitted_copy)
 
                     if (output_type == "file"):
                         pltimage.imsave(output_image_path, detected_copy)
@@ -536,8 +570,6 @@ class ObjectDetection:
                             return output_objects_array
                         elif (output_type == "array"):
                             return detected_copy, output_objects_array
-
-
 
             except:
                 raise ValueError(
@@ -561,7 +593,6 @@ class ObjectDetection:
                       oven=False, toaster=False, sink=False, refrigerator=False, book=False, clock=False, vase=False,
                       scissors=False, teddy_bear=False, hair_dryer=False,
                       toothbrush=False):
-
         """
                          The 'CustomObjects()' function allows you to handpick the type of objects you want to detect
                          from an image. The objects are pre-initiated in the function variables and predefined as 'False',
@@ -685,7 +716,8 @@ class ObjectDetection:
                 """
 
         if (self.__modelLoaded == False):
-            raise ValueError("You must call the loadModel() function before making object detection.")
+            raise ValueError(
+                "You must call the loadModel() function before making object detection.")
         elif (self.__modelLoaded == True):
             try:
                 if (self.__modelType == "retinanet"):
@@ -700,24 +732,30 @@ class ObjectDetection:
                         image = read_image_stream(input_image)
 
                     detected_copy = image.copy()
-                    detected_copy = cv2.cvtColor(detected_copy, cv2.COLOR_BGR2RGB)
+                    detected_copy = cv2.cvtColor(
+                        detected_copy, cv2.COLOR_BGR2RGB)
 
                     detected_copy2 = image.copy()
-                    detected_copy2 = cv2.cvtColor(detected_copy2, cv2.COLOR_BGR2RGB)
+                    detected_copy2 = cv2.cvtColor(
+                        detected_copy2, cv2.COLOR_BGR2RGB)
 
                     image = preprocess_image(image)
-                    image, scale = resize_image(image, min_side=self.__input_image_min, max_side=self.__input_image_max)
+                    image, scale = resize_image(
+                        image, min_side=self.__input_image_min, max_side=self.__input_image_max)
 
                     model = self.__model_collection[0]
 
                     if thread_safe == True:
                         with self.sess.graph.as_default():
-                            _, _, detections = model.predict_on_batch(np.expand_dims(image, axis=0))
+                            _, _, detections = model.predict_on_batch(
+                                np.expand_dims(image, axis=0))
                     else:
-                        _, _, detections = model.predict_on_batch(np.expand_dims(image, axis=0))
+                        _, _, detections = model.predict_on_batch(
+                            np.expand_dims(image, axis=0))
 
                     predicted_numbers = np.argmax(detections[0, :, 4:], axis=1)
-                    scores = detections[0, np.arange(detections.shape[1]), 4 + predicted_numbers]
+                    scores = detections[0, np.arange(
+                        detections.shape[1]), 4 + predicted_numbers]
 
                     detections[0, :, :4] /= scale
 
@@ -742,37 +780,47 @@ class ObjectDetection:
 
                         color = label_color(label)
 
-                        detection_details = detections[0, index, :4].astype(int)
+                        detection_details = detections[0, index, :4].astype(
+                            int)
                         draw_box(detected_copy, detection_details, color=color)
 
                         if (display_object_name == True and display_percentage_probability == True):
-                            caption = "{} {:.3f}".format(self.numbers_to_names[label], (score * 100))
-                            draw_caption(detected_copy, detection_details, caption)
+                            caption = "{} {:.3f}".format(
+                                self.numbers_to_names[label], (score * 100))
+                            draw_caption(
+                                detected_copy, detection_details, caption)
                         elif (display_object_name == True):
-                            caption = "{} ".format(self.numbers_to_names[label])
-                            draw_caption(detected_copy, detection_details, caption)
+                            caption = "{} ".format(
+                                self.numbers_to_names[label])
+                            draw_caption(
+                                detected_copy, detection_details, caption)
                         elif (display_percentage_probability == True):
                             caption = " {:.3f}".format((score * 100))
-                            draw_caption(detected_copy, detection_details, caption)
+                            draw_caption(
+                                detected_copy, detection_details, caption)
 
                         each_object_details = {}
                         each_object_details["name"] = self.numbers_to_names[label]
                         each_object_details["percentage_probability"] = score * 100
-                        each_object_details["box_points"] = detection_details.tolist()
+                        each_object_details["box_points"] = detection_details.tolist(
+                        )
 
                         output_objects_array.append(each_object_details)
 
                         if (extract_detected_objects == True):
                             splitted_copy = detected_copy2.copy()[detection_details[1]:detection_details[3],
-                                            detection_details[0]:detection_details[2]]
+                                                                  detection_details[0]:detection_details[2]]
                             if (output_type == "file"):
                                 splitted_image_path = os.path.join(objects_dir,
                                                                    self.numbers_to_names[label] + "-" + str(
                                                                        counting) + ".jpg")
-                                pltimage.imsave(splitted_image_path, splitted_copy)
-                                detected_objects_image_array.append(splitted_image_path)
+                                pltimage.imsave(
+                                    splitted_image_path, splitted_copy)
+                                detected_objects_image_array.append(
+                                    splitted_image_path)
                             elif (output_type == "array"):
-                                detected_objects_image_array.append(splitted_copy)
+                                detected_objects_image_array.append(
+                                    splitted_copy)
 
                     if (output_type == "file"):
                         pltimage.imsave(output_image_path, detected_copy)
@@ -803,10 +851,12 @@ class ObjectDetection:
                         input_image = read_image_stream(input_image)
 
                     detected_copy = input_image
-                    detected_copy = cv2.cvtColor(detected_copy, cv2.COLOR_BGR2RGB)
+                    detected_copy = cv2.cvtColor(
+                        detected_copy, cv2.COLOR_BGR2RGB)
 
                     detected_copy2 = input_image
-                    detected_copy2 = cv2.cvtColor(detected_copy2, cv2.COLOR_BGR2RGB)
+                    detected_copy2 = cv2.cvtColor(
+                        detected_copy2, cv2.COLOR_BGR2RGB)
 
                     new_image_size = (self.__yolo_model_image_size[0] - (self.__yolo_model_image_size[0] % 32),
                                       self.__yolo_model_image_size[1] - (self.__yolo_model_image_size[1] % 32))
@@ -821,7 +871,8 @@ class ObjectDetection:
                     if thread_safe == True:
                         with self.sess.graph.as_default():
                             out_boxes, out_scores, out_classes = self.sess.run(
-                                [self.__yolo_boxes, self.__yolo_scores, self.__yolo_classes],
+                                [self.__yolo_boxes, self.__yolo_scores,
+                                    self.__yolo_classes],
                                 feed_dict={
                                     model.input: image_data,
                                     self.__yolo_input_image_shape: [image.size[1], image.size[0]],
@@ -829,7 +880,8 @@ class ObjectDetection:
                                 })
                     else:
                         out_boxes, out_scores, out_classes = self.sess.run(
-                            [self.__yolo_boxes, self.__yolo_scores, self.__yolo_classes],
+                            [self.__yolo_boxes, self.__yolo_scores,
+                                self.__yolo_classes],
                             feed_dict={
                                 model.input: image_data,
                                 self.__yolo_input_image_shape: [image.size[1], image.size[0]],
@@ -863,8 +915,10 @@ class ObjectDetection:
                         top, left, bottom, right = box
                         top = max(0, np.floor(top + 0.5).astype('int32'))
                         left = max(0, np.floor(left + 0.5).astype('int32'))
-                        bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
-                        right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
+                        bottom = min(image.size[1], np.floor(
+                            bottom + 0.5).astype('int32'))
+                        right = min(image.size[0], np.floor(
+                            right + 0.5).astype('int32'))
 
                         try:
                             color = label_color(b)
@@ -875,11 +929,14 @@ class ObjectDetection:
                         draw_box(detected_copy, detection_details, color=color)
 
                         if (display_object_name == True and display_percentage_probability == True):
-                            draw_caption(detected_copy, detection_details, label)
+                            draw_caption(
+                                detected_copy, detection_details, label)
                         elif (display_object_name == True):
-                            draw_caption(detected_copy, detection_details, predicted_class)
+                            draw_caption(
+                                detected_copy, detection_details, predicted_class)
                         elif (display_percentage_probability == True):
-                            draw_caption(detected_copy, detection_details, str(score * 100))
+                            draw_caption(
+                                detected_copy, detection_details, str(score * 100))
 
                         each_object_details = {}
                         each_object_details["name"] = predicted_class
@@ -890,15 +947,18 @@ class ObjectDetection:
 
                         if (extract_detected_objects == True):
                             splitted_copy = detected_copy2.copy()[detection_details[1]:detection_details[3],
-                                            detection_details[0]:detection_details[2]]
+                                                                  detection_details[0]:detection_details[2]]
                             if (output_type == "file"):
                                 splitted_image_path = os.path.join(objects_dir,
                                                                    predicted_class + "-" + str(
                                                                        counting) + ".jpg")
-                                pltimage.imsave(splitted_image_path, splitted_copy)
-                                detected_objects_image_array.append(splitted_image_path)
+                                pltimage.imsave(
+                                    splitted_image_path, splitted_copy)
+                                detected_objects_image_array.append(
+                                    splitted_image_path)
                             elif (output_type == "array"):
-                                detected_objects_image_array.append(splitted_copy)
+                                detected_objects_image_array.append(
+                                    splitted_copy)
 
                     if (output_type == "file"):
                         pltimage.imsave(output_image_path, detected_copy)
@@ -945,7 +1005,6 @@ class VideoObjectDetection:
         self.__input_image_min = 1333
         self.__input_image_max = 800
         self.__detection_storage = None
-
 
         self.numbers_to_names = {0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5: 'bus',
                                  6: 'train',
@@ -1052,13 +1111,11 @@ class VideoObjectDetection:
             self.__detector = frame_detector
             self.__modelLoaded = True
 
-
     def detectObjectsFromVideo(self, input_file_path="", camera_input=None, output_file_path="", frames_per_second=20,
                                frame_detection_interval=1, minimum_percentage_probability=50, log_progress=False,
                                display_percentage_probability=True, display_object_name=True, save_detected_video=True,
                                per_frame_function=None, per_second_function=None, per_minute_function=None,
-                               video_complete_function=None, return_detected_frame=False, detection_timeout = None, thread_safe=False):
-
+                               video_complete_function=None, return_detected_frame=False, detection_timeout=None, thread_safe=False):
         """
                     'detectObjectsFromVideo()' function is used to detect objects observable in the given video path or a camera input:
             * input_file_path , which is the file path to the input video. It is required only if 'camera_input' is not set
@@ -1172,7 +1229,6 @@ class VideoObjectDetection:
                 detection_timeout_count = 0
                 video_frames_count = 0
 
-
                 while (input_video.isOpened()):
                     ret, frame = input_video.read()
 
@@ -1219,7 +1275,8 @@ class VideoObjectDetection:
 
                         output_frames_count_dict[counting] = output_objects_count
 
-                        detected_copy = cv2.cvtColor(detected_copy, cv2.COLOR_BGR2RGB)
+                        detected_copy = cv2.cvtColor(
+                            detected_copy, cv2.COLOR_BGR2RGB)
 
                         if (save_detected_video == True):
                             output_video.write(detected_copy)
@@ -1230,7 +1287,8 @@ class VideoObjectDetection:
                                     per_frame_function(counting, output_objects_array, output_objects_count,
                                                        detected_copy)
                                 elif (return_detected_frame == False):
-                                    per_frame_function(counting, output_objects_array, output_objects_count)
+                                    per_frame_function(
+                                        counting, output_objects_array, output_objects_count)
 
                         if (per_second_function != None):
                             if (counting != 1 and (counting % frames_per_second) == 0):
@@ -1241,19 +1299,22 @@ class VideoObjectDetection:
 
                                 for aa in range(counting):
                                     if (aa >= (counting - frames_per_second)):
-                                        this_second_output_object_array.append(output_frames_dict[aa + 1])
-                                        this_second_counting_array.append(output_frames_count_dict[aa + 1])
+                                        this_second_output_object_array.append(
+                                            output_frames_dict[aa + 1])
+                                        this_second_counting_array.append(
+                                            output_frames_count_dict[aa + 1])
 
                                 for eachCountingDict in this_second_counting_array:
                                     for eachItem in eachCountingDict:
                                         try:
                                             this_second_counting[eachItem] = this_second_counting[eachItem] + \
-                                                                             eachCountingDict[eachItem]
+                                                eachCountingDict[eachItem]
                                         except:
                                             this_second_counting[eachItem] = eachCountingDict[eachItem]
 
                                 for eachCountingItem in this_second_counting:
-                                    this_second_counting[eachCountingItem] = int(this_second_counting[eachCountingItem] / frames_per_second)
+                                    this_second_counting[eachCountingItem] = int(
+                                        this_second_counting[eachCountingItem] / frames_per_second)
 
                                 if (return_detected_frame == True):
                                     per_second_function(int(counting / frames_per_second),
@@ -1275,19 +1336,22 @@ class VideoObjectDetection:
 
                                 for aa in range(counting):
                                     if (aa >= (counting - (frames_per_second * 60))):
-                                        this_minute_output_object_array.append(output_frames_dict[aa + 1])
-                                        this_minute_counting_array.append(output_frames_count_dict[aa + 1])
+                                        this_minute_output_object_array.append(
+                                            output_frames_dict[aa + 1])
+                                        this_minute_counting_array.append(
+                                            output_frames_count_dict[aa + 1])
 
                                 for eachCountingDict in this_minute_counting_array:
                                     for eachItem in eachCountingDict:
                                         try:
                                             this_minute_counting[eachItem] = this_minute_counting[eachItem] + \
-                                                                             eachCountingDict[eachItem]
+                                                eachCountingDict[eachItem]
                                         except:
                                             this_minute_counting[eachItem] = eachCountingDict[eachItem]
 
                                 for eachCountingItem in this_minute_counting:
-                                    this_minute_counting[eachCountingItem] = int(this_minute_counting[eachCountingItem] / (frames_per_second * 60))
+                                    this_minute_counting[eachCountingItem] = int(
+                                        this_minute_counting[eachCountingItem] / (frames_per_second * 60))
 
                                 if (return_detected_frame == True):
                                     per_minute_function(int(counting / (frames_per_second * 60)),
@@ -1299,7 +1363,6 @@ class VideoObjectDetection:
                                                         this_minute_output_object_array, this_minute_counting_array,
                                                         this_minute_counting)
 
-
                     else:
                         break
 
@@ -1310,19 +1373,22 @@ class VideoObjectDetection:
                     this_video_counting = {}
 
                     for aa in range(counting):
-                        this_video_output_object_array.append(output_frames_dict[aa + 1])
-                        this_video_counting_array.append(output_frames_count_dict[aa + 1])
+                        this_video_output_object_array.append(
+                            output_frames_dict[aa + 1])
+                        this_video_counting_array.append(
+                            output_frames_count_dict[aa + 1])
 
                     for eachCountingDict in this_video_counting_array:
                         for eachItem in eachCountingDict:
                             try:
                                 this_video_counting[eachItem] = this_video_counting[eachItem] + \
-                                                                eachCountingDict[eachItem]
+                                    eachCountingDict[eachItem]
                             except:
                                 this_video_counting[eachItem] = eachCountingDict[eachItem]
 
                     for eachCountingItem in this_video_counting:
-                        this_video_counting[eachCountingItem] = int(this_video_counting[eachCountingItem] / counting)
+                        this_video_counting[eachCountingItem] = int(
+                            this_video_counting[eachCountingItem] / counting)
 
                     video_complete_function(this_video_output_object_array, this_video_counting_array,
                                             this_video_counting)
@@ -1356,7 +1422,6 @@ class VideoObjectDetection:
                       oven=False, toaster=False, sink=False, refrigerator=False, book=False, clock=False, vase=False,
                       scissors=False, teddy_bear=False, hair_dryer=False,
                       toothbrush=False):
-
         """
                          The 'CustomObjects()' function allows you to handpick the type of objects you want to detect
                          from a video. The objects are pre-initiated in the function variables and predefined as 'False',
@@ -1414,8 +1479,7 @@ class VideoObjectDetection:
                                      display_percentage_probability=True, display_object_name=True,
                                      save_detected_video=True, per_frame_function=None, per_second_function=None,
                                      per_minute_function=None, video_complete_function=None,
-                                     return_detected_frame=False, detection_timeout = None, thread_safe=False):
-
+                                     return_detected_frame=False, detection_timeout=None, thread_safe=False, extra_args=None):
         """
                             'detectObjectsFromVideo()' function is used to detect specific object(s) observable in the given video path or given camera live stream input:
                                     * custom_objects , which is the dictionary returned by the 'CustomObjects' function
@@ -1598,7 +1662,8 @@ class VideoObjectDetection:
 
                         output_frames_count_dict[counting] = output_objects_count
 
-                        detected_copy = cv2.cvtColor(detected_copy, cv2.COLOR_BGR2RGB)
+                        detected_copy = cv2.cvtColor(
+                            detected_copy, cv2.COLOR_BGR2RGB)
 
                         if (save_detected_video == True):
                             output_video.write(detected_copy)
@@ -1607,9 +1672,10 @@ class VideoObjectDetection:
                             if (per_frame_function != None):
                                 if (return_detected_frame == True):
                                     per_frame_function(counting, output_objects_array, output_objects_count,
-                                                       detected_copy)
+                                                       detected_copy, extra_args)
                                 elif (return_detected_frame == False):
-                                    per_frame_function(counting, output_objects_array, output_objects_count)
+                                    per_frame_function(
+                                        counting, output_objects_array, output_objects_count)
 
                         if (per_second_function != None):
                             if (counting != 1 and (counting % frames_per_second) == 0):
@@ -1620,19 +1686,22 @@ class VideoObjectDetection:
 
                                 for aa in range(counting):
                                     if (aa >= (counting - frames_per_second)):
-                                        this_second_output_object_array.append(output_frames_dict[aa + 1])
-                                        this_second_counting_array.append(output_frames_count_dict[aa + 1])
+                                        this_second_output_object_array.append(
+                                            output_frames_dict[aa + 1])
+                                        this_second_counting_array.append(
+                                            output_frames_count_dict[aa + 1])
 
                                 for eachCountingDict in this_second_counting_array:
                                     for eachItem in eachCountingDict:
                                         try:
                                             this_second_counting[eachItem] = this_second_counting[eachItem] + \
-                                                                             eachCountingDict[eachItem]
+                                                eachCountingDict[eachItem]
                                         except:
                                             this_second_counting[eachItem] = eachCountingDict[eachItem]
 
                                 for eachCountingItem in this_second_counting:
-                                    this_second_counting[eachCountingItem] = int(this_second_counting[eachCountingItem] / frames_per_second)
+                                    this_second_counting[eachCountingItem] = int(
+                                        this_second_counting[eachCountingItem] / frames_per_second)
 
                                 if (return_detected_frame == True):
                                     per_second_function(int(counting / frames_per_second),
@@ -1654,19 +1723,22 @@ class VideoObjectDetection:
 
                                 for aa in range(counting):
                                     if (aa >= (counting - (frames_per_second * 60))):
-                                        this_minute_output_object_array.append(output_frames_dict[aa + 1])
-                                        this_minute_counting_array.append(output_frames_count_dict[aa + 1])
+                                        this_minute_output_object_array.append(
+                                            output_frames_dict[aa + 1])
+                                        this_minute_counting_array.append(
+                                            output_frames_count_dict[aa + 1])
 
                                 for eachCountingDict in this_minute_counting_array:
                                     for eachItem in eachCountingDict:
                                         try:
                                             this_minute_counting[eachItem] = this_minute_counting[eachItem] + \
-                                                                             eachCountingDict[eachItem]
+                                                eachCountingDict[eachItem]
                                         except:
                                             this_minute_counting[eachItem] = eachCountingDict[eachItem]
 
                                 for eachCountingItem in this_minute_counting:
-                                    this_minute_counting[eachCountingItem] = int(this_minute_counting[eachCountingItem] / (frames_per_second * 60))
+                                    this_minute_counting[eachCountingItem] = int(
+                                        this_minute_counting[eachCountingItem] / (frames_per_second * 60))
 
                                 if (return_detected_frame == True):
                                     per_minute_function(int(counting / (frames_per_second * 60)),
@@ -1678,7 +1750,6 @@ class VideoObjectDetection:
                                                         this_minute_output_object_array, this_minute_counting_array,
                                                         this_minute_counting)
 
-
                     else:
                         break
 
@@ -1689,19 +1760,22 @@ class VideoObjectDetection:
                     this_video_counting = {}
 
                     for aa in range(counting):
-                        this_video_output_object_array.append(output_frames_dict[aa + 1])
-                        this_video_counting_array.append(output_frames_count_dict[aa + 1])
+                        this_video_output_object_array.append(
+                            output_frames_dict[aa + 1])
+                        this_video_counting_array.append(
+                            output_frames_count_dict[aa + 1])
 
                     for eachCountingDict in this_video_counting_array:
                         for eachItem in eachCountingDict:
                             try:
                                 this_video_counting[eachItem] = this_video_counting[eachItem] + \
-                                                                eachCountingDict[eachItem]
+                                    eachCountingDict[eachItem]
                             except:
                                 this_video_counting[eachItem] = eachCountingDict[eachItem]
 
                     for eachCountingItem in this_video_counting:
-                        this_video_counting[eachCountingItem] = int(this_video_counting[eachCountingItem] / counting)
+                        this_video_counting[eachCountingItem] = int(
+                            this_video_counting[eachCountingItem] / counting)
 
                     video_complete_function(this_video_output_object_array, this_video_counting_array,
                                             this_video_counting)
@@ -1712,9 +1786,7 @@ class VideoObjectDetection:
                 if (save_detected_video == True):
                     return output_video_filepath
 
-
             except:
                 raise ValueError(
                     "An error occured. It may be that your input video is invalid. Ensure you specified a proper string value for 'output_file_path' is 'save_detected_video' is not False. "
                     "Also ensure your per_frame, per_second, per_minute or video_complete_analysis function is properly configured to receive the right parameters. ")
-
